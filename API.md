@@ -226,6 +226,25 @@ Returned when required fields are missing/blank or an invalid enum/payload is se
 ```
 
 
+
+### 3.3 Invalid Enum Value (`400 Bad Request`)
+Returned when an enum field carries a value outside its allowed set. The offending
+field appears in `errors`, and the message lists the accepted values.
+```json
+{
+  "timestamp": "2026-11-21T20:29:25.3569484",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Invalid value 'Car' for vehicleType. Allowed values: CAR, SUV, VAN, MICROBUS, BUS, TRUCK, PICKUP, MOTORCYCLE",
+  "errors": {
+    "vehicleType": "Invalid value 'Car' for vehicleType. Allowed values: CAR, SUV, VAN, MICROBUS, BUS, TRUCK, PICKUP, MOTORCYCLE"
+  }
+}
+```
+
+Malformed JSON and unparseable path or query parameters still return the generic
+`"Invalid request payload or parameters"` message with no `errors` map.
+
 ---
 
 ## 4. Configuration Profiles

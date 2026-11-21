@@ -194,6 +194,27 @@ class VehicleControllerTest {
     }
 
     @Test
+    void createVehicle_invalidEnum_returns400WithFieldError() throws Exception {
+        String payload = """
+                {
+                  "vehicleNumber": "DHA-METRO-GA-12-3456",
+                  "vehicleType": "Car",
+                  "brand": "Toyota",
+                  "model": "Corolla"
+                }
+                """;
+
+        mockMvc.perform(post("/api/vehicles")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.errors.vehicleType").isNotEmpty())
+                .andExpect(jsonPath("$.message").value(
+                        org.hamcrest.Matchers.containsString("Allowed values: CAR, SUV")));
+    }
+
+    @Test
     void updateVehicle_valid_returns200() throws Exception {
         VehicleResponse updated = new VehicleResponse(
                 1L,

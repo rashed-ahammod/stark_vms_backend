@@ -12,9 +12,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -60,8 +65,34 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, message.isBlank() ? "Validation failed" : message, null);
     }
 
-    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
-    public ResponseEntity<Map<String, Object>> handleBadRequest(Exception ex) {
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleNotReadable(HttpMessageNotReadableException ex) {
+        if (ex.getCause() instanceof InvalidFormatException cause
+                && cause.getTargetType() != null
+                && cause.getTargetType().isEnum()) {
+
+            String field = cause.getPath().stream()
+                    .map(JacksonException.Reference::getPropertyName)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining("."));
+
+            if (!field.isBlank()) {
+                String allowed = Arrays.stream(cause.getTargetType().getEnumConstants())
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(", "));
+                String message = "Invalid value '" + cause.getValue() + "' for " + field
+                        + ". Allowed values: " + allowed;
+
+                Map<String, String> fieldErrors = new LinkedHashMap<>();
+                fieldErrors.put(field, message);
+                return buildErrorResponse(HttpStatus.BAD_REQUEST, message, fieldErrors);
+            }
+        }
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid request payload or parameters", null);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid request payload or parameters", null);
     }
 
