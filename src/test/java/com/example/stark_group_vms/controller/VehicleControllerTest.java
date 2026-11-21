@@ -131,6 +131,26 @@ class VehicleControllerTest {
     }
 
     @Test
+    void createVehicle_onlyRequiredFields_returns201() throws Exception {
+        when(vehicleService.createVehicle(any(Vehicle.class))).thenReturn(sampleVehicleResponse());
+
+        String payload = """
+                {
+                  "vehicleNumber": "DHA-METRO-GA-12-3456",
+                  "vehicleType": "CAR",
+                  "brand": "Toyota",
+                  "model": "Corolla"
+                }
+                """;
+
+        mockMvc.perform(post("/api/vehicles")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1));
+    }
+
+    @Test
     void createVehicle_duplicateNumber_returns409() throws Exception {
         when(vehicleService.createVehicle(any(Vehicle.class)))
                 .thenThrow(new DuplicateResourceException("Vehicle with number 'DHA-METRO-GA-12-3456' already exists"));

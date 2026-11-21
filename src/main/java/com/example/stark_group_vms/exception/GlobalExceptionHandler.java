@@ -60,9 +60,18 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, message.isBlank() ? "Validation failed" : message, null);
     }
 
-    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class, IllegalArgumentException.class})
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
     public ResponseEntity<Map<String, Object>> handleBadRequest(Exception ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid request payload or parameters", null);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        String message = ex.getMessage();
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                (message == null || message.isBlank()) ? "Invalid request payload or parameters" : message,
+                null);
     }
 
     private ResponseEntity<Map<String, Object>> buildErrorResponse(

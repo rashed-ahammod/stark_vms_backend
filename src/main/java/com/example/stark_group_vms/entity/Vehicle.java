@@ -4,10 +4,8 @@ import com.example.stark_group_vms.enums.FuelType;
 import com.example.stark_group_vms.enums.VehicleStatus;
 import com.example.stark_group_vms.enums.VehicleType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,24 +43,19 @@ public class Vehicle {
     @Column(nullable = false)
     private String model;
 
-    @Min(value = 1900, message = "Manufacturing year must be at least 1900")
     private Integer manufacturingYear;
 
     private String color;
 
-    @NotNull(message = "Fuel type is required")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private FuelType fuelType;
 
-    @Positive(message = "Seating capacity must be greater than 0")
     private Integer seatingCapacity;
 
     private String driverName;
 
     private String driverPhone;
 
-    @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private VehicleStatus status = VehicleStatus.AVAILABLE;
