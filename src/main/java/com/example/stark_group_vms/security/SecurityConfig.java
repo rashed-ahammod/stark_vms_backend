@@ -98,11 +98,14 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         // "*" stays available for local development; production sets
         // CORS_ALLOWED_ORIGINS to the Flutter Web domain(s).
+        // Patterns are used rather than setAllowedOrigins so an entry may carry a
+        // wildcard, e.g. "http://localhost:*" for a Flutter dev server whose port
+        // changes between runs. An entry without a wildcard still matches exactly.
         List<String> origins = properties.getAllowedOrigins();
-        if (origins == null || origins.isEmpty() || origins.contains("*")) {
+        if (origins == null || origins.isEmpty()) {
             config.setAllowedOriginPatterns(List.of("*"));
         } else {
-            config.setAllowedOrigins(origins);
+            config.setAllowedOriginPatterns(origins);
         }
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
